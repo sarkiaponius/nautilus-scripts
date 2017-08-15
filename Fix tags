@@ -1,0 +1,19 @@
+#!/bin/bash
+pp=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+base=${pp##*/}
+name=${base%%.*}
+
+total=$(find "$pp" -type f -name "*.mp3" | wc -l)
+
+( \
+find "$pp" -type f -name "*.mp3" \
+| sort \
+| while read ff ; do
+    echo $(((i++)*100/total))
+    echo "#($i/$total) Fixing ${ff##*/}..."
+    eyeD3 --no-color --set-encoding=latin1 --force-update "$ff" 2>&1
+    #sleep 1
+  done
+  echo "#Fixed $total file"
+) \
+  | zenity --progress --width=600

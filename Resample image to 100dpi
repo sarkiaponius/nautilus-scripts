@@ -1,0 +1,24 @@
+#!/bin/bash
+pp=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+#pp="$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS"
+
+dest="100dpi"
+mkdir "$dest"
+total=$(find "$pp" -type f | wc -l)
+
+find "$pp" -type f > log.txt
+i=0
+( \
+find "$pp" -type f \
+| sort \
+| while read ff ; do
+    echo $(((i++)*100/total))
+    sleep 1
+    echo "#($i/$total) Resampling images from ${ff##*/}..."
+    base="${ff##*/}"
+    name="${base%.*}"
+    convert "$ff" -resample 100x100 "$dest/$name" 
+  done
+  echo "# Resampled $total files"
+) \
+  |zenity --progress --width=600

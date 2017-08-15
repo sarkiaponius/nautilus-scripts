@@ -1,0 +1,21 @@
+#!/bin/bash
+pp=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+#pp="$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS"
+base=${pp##*/}
+name=${base%%.*}
+
+total=$(echo "$pp" | wc -l)
+(\ 
+echo "$pp" \
+| while read ff ; do
+    echo $(((i++)*100/total))
+    name=${ff%.*}
+    echo "#($i/$total) Converting ${ff##*/}..." 
+    ffmpeg -nostdin -loglevel info -i "$ff" -c:a libmp3lame -q:a 2 -y "${name}.mp3"
+    touch --reference="$ff" "${name}.mp3"
+    sleep 1
+  done 
+  echo "#$total files converted"
+) \
+  | zenity --progress --width=600 --title "Converting $total files to MP3 with Standard preset..."
+

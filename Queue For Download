@@ -1,0 +1,6 @@
+#!/bin/bash
+#pp=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+#base=${pp##*/}
+#name=${base%%.*}
+zenity --entry --text "Add a youtube URL $PWD" \
+  --width 500 >> $HOME/Desktop/.coda-youtube

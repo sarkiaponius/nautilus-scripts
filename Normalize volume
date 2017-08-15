@@ -1,0 +1,20 @@
+#!/bin/bash
+pp=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+base=${pp##*/}
+#(find "$pp/" -type f -name "*.mp3" -exec mp3gain -q -r {} \; 2>&1 ; \  
+#  echo "*** Ho finito, ciao... ***" )\
+#  | zenity --text-info --width 600 --title "Normalizing volume in $base"
+total=$(find "$pp" -type f -name "*.mp3" | wc -l)
+
+( \
+find "$pp" -type f -name "*.mp3" \
+| sort \
+| while read ff ; do
+    echo $(((i++)*100/total))
+    echo "#($i/$total) Normalizzo ${ff##*/}..."
+    sleep 1
+    mp3gain -c -q -r "$ff" 2>&1
+  done
+  echo "#Normalizzati $total file"
+) \
+  |zenity --progress --width=600 --title="$pp"

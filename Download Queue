@@ -1,0 +1,5 @@
+#!/bin/bash
+cd $HOME/Desktop
+/opt/bin/youtube-dl --batch-file $HOME/Desktop/.coda-youtube --no-progress --auto-number \
+  | zenity --width 600 --height 500 --text-info --title "Downloading all queued videos..."
+cat /dev/null > $HOME/Desktop/.coda-youtube

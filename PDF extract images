@@ -1,0 +1,24 @@
+#!/bin/bash
+pp=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+#pp="$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS"
+
+dest="img"
+mkdir "$dest"
+total=$(find "$pp" -type f -name "*.pdf" | wc -l)
+
+find "$pp" -type f -name "*.pdf" > log.txt
+
+( \
+find "$pp" -type f -name "*.pdf" \
+| sort \
+| while read ff ; do
+    echo $(((i++)*100/total))
+    sleep 1
+    echo "#($i/$total) Extracting images from ${ff##*/}..."
+    base="${ff##*/}"
+    name="${base%.*}"
+    pdfimages -all "$ff" "$dest/$name"
+  done
+  echo "# Extracted images from $total files"
+) \
+  |zenity --progress --width=600

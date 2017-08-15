@@ -1,0 +1,39 @@
+# I nomi dei file selezionati con Nautilus hanno sempre un CR alla fine che va rimosso.
+lista=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+base=${lista##*/}
+
+# Passiamo in /tmp e creiamo una directory temporanea in cui lavorare
+cd /tmp
+RND=$RANDOM
+mkdir $RND
+cd $RND 
+
+# Usando \n come IFS, si scorre la playlist M3U creando link simbolici ai file elencati,
+# aggiungendo un contatore iniziale e scartando le directory dal path.
+i=0
+ifs=$IFS
+IFS=$'\n'
+for ff in $(cat $lista); do 
+  $((++i))
+  j=$(printf "%03d" $i)
+  gg="$j ${ff##*/}"
+  hh="${gg%%.*}"
+  ln -s "$ff" "${hh:0:60}.mp3"
+done
+
+# Si recupera l'IFS salvato e si sale di una directory per avviare l'incisione
+IFS=$if
+cd ..
+
+# Si smonta e si cancella il CD per sicurezza, poi si avvia l'incisione, 
+# che non avviene in diretta, ma creando prima l'ISO, se no non funziona.
+(\
+  genisoimage -f -J -R -o $RND.iso $RND ;\
+  umount /dev/hda ; \
+  wodim -v dev=/dev/hda blank=fast ; \
+  wodim -v dev=/dev/hda speed=2 $RND.iso \
+) \
+  | zenity --text-info --width 600 --height 400 --title "Burning $lista as M3U playlist"
+#rm -rf $RND $RND.iso
+#(umount /dev/hda ; growisofs -Z /dev/hda -J -f $RND/ ) \
+

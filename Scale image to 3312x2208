@@ -1,0 +1,20 @@
+#!/bin/bash
+pp=$(echo "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | sed 's/\r//g')
+pp="$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS"
+
+dest="3312x2208"
+mkdir "$dest"
+total=$(echo "$pp" |wc -l)
+
+( \
+echo "$pp" \
+| while read ff ; do
+    echo $(((i++)*100/total))
+    echo "#($i/$total) Scaling ${ff##*/}..."
+    base=${ff##*/}
+    name=${base%%.*}
+    convert "$ff" -resize $dest "$dest/${name}.jpeg"
+  done
+  echo "#Scaled $total pictures"
+) \
+  |zenity --progress --width=600
